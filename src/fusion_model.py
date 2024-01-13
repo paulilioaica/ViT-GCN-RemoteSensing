@@ -26,7 +26,6 @@ class FusionModel(nn.Module):
         self.linear_in = nn.Sequential(nn.Linear(nfeat, nhid))
 
         self.linear_out = nn.Sequential(nn.Linear(128,  nclass))
-        # self.linear_out = nn.Sequential(nn.Linear(nclass,  nclass))
 
         self.edge_pooling = EdgePooling(nhid)
 
@@ -42,7 +41,7 @@ class FusionModel(nn.Module):
         x_vit = self.vit(slices.transpose(1, 3).float())
         
         # merge
-        x = torch.cat([x, x_vit], dim=1)
+        x = torch.cat([x_gcn, x_vit], dim=1)
 
         x = self.linear_out(x)
         
