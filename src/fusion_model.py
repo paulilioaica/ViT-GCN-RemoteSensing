@@ -1,18 +1,17 @@
 import torch
 import torch.nn as nn
-import torch_cluster
 from vision_transformer import ViT
 import torch.nn.functional as F
-from torch_geometric.nn import GraphConv, GCN2Conv, ChebConv, GATv2Conv, GeneralConv, global_max_pool, EdgePooling, BatchNorm, global_mean_pool
+from torch_geometric.nn import GraphConv, EdgePooling, BatchNorm
 
 class FusionModel(nn.Module):
-    def __init__(self, nfeat, nhid, nclass, depth, image_size, patch_size, dropout):
+    def __init__(self, nfeat, nhid, nclass, depth, image_size, patch_size, heads, dropout):
         super(FusionModel, self).__init__()
 
         self.gcn = GraphConv(nhid, nhid)
         self.vit  = ViT( image_size = image_size * 5, patch_size = patch_size, 
                            num_classes = nclass, dim = nhid, depth =depth, 
-                           heads = 1, mlp_dim = nhid, 
+                           heads = heads, mlp_dim = nhid, 
                            dropout = dropout, emb_dropout = dropout, channels=nfeat )
 
 

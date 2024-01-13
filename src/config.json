@@ -1,0 +1,15 @@
+
+{
+    "batch_size": 64, 
+    "lr": 0.0001,
+    "nfeat": 200,
+    "nhid": 128,
+    "nclass": 16,
+    "depth": 3,
+    "image_size": 200,
+    "patch_size": 5,
+    "dropout": 0.2,
+    "data_path": ".",
+    "heads": 8
+
+}

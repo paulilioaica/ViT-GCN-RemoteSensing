@@ -1,9 +1,10 @@
 import numpy as np
 import torch
+import os
+from sklearn.metrics import  classification_report
 from sklearn.metrics import accuracy_score, r2_score
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-device = 'cuda'
 
 def mean_absolute_percentage_error(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
@@ -12,9 +13,8 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 class Trainer:
     def __init__(self, network, train_dataloader, eval_dataloader, criterion, optimizer,
-                 config, device):
+                 device):
         self.device = device
-        self.config = config
         self.network = network
         self.train_dataloader = train_dataloader
         self.eval_dataloader = eval_dataloader
@@ -60,9 +60,12 @@ class Trainer:
 
                 accuracy.append(accuracy_score( data.y.cpu(), output.cpu().argmax(dim=1)))
                 running_eval_loss.append(loss_eval.item())
+            
             print("[EVAL]  Epoch {}/{}, Accuracy is {} %, Loss is {}".format(0, 15000, np.mean(accuracy),
                                                                          np.mean(running_eval_loss)), sep='')
+            
             print(classification_report(output.cpu().argmax(dim=1), data.y.cpu()))
+            
             if np.mean(accuracy) < self.best_error:
                 self.best_error = np.mean(accuracy)
                 torch.save(self.network.state_dict(), 'best_model.pt')
@@ -70,9 +73,7 @@ class Trainer:
 
 
     def eval_net_raw(self):
-        running_eval_loss = []
         self.network.eval()
-        accuracy = []
         with torch.no_grad():
             for idx, data in enumerate(self.eval_dataloader):
                 self.optimizer.zero_grad()
@@ -94,20 +95,12 @@ class Trainer:
         validation_accuracy.append(acc)
 
         for i in range(0, self.config['epochs'] + 1):
-            print(os.system("!nvidia-smi"))
-            print("\n\n\n\n")
-
-
             acc, loss = self.train_epoch(i, self.config['epochs'])
             training_loss.append(loss)
             training_accuracy.append(acc)
-            writer_train.add_scalar("Loss", loss, i)
-            writer_train.add_scalar("Accuracy", acc, i)
 
-            if i % 5 == 0:
+            if i % 2 == 0:
                 acc, loss = self.eval_net()
                 validation_loss.append(loss)
                 validation_accuracy.append(acc)
-                writer_test.add_scalar("Loss", loss, i)
-                writer_test.add_scalar("Accuracy", acc, i)
         return training_accuracy, training_loss, validation_accuracy, validation_loss
