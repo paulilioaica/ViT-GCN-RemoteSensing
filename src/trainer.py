@@ -29,8 +29,9 @@ class Trainer:
         for idx, data in enumerate(self.train_dataloader):
             self.optimizer.zero_grad()
             data = data.to(device)
+            # Perform a single forward pass.
             output = self.network(data.x, data.edge_index, data.edge_features,
-                                  data.slices, data.batch)  # Perform a single forward pass.
+                                  data.slices)  
 
             
             loss = self.criterion(output.float(), data.y.long())
@@ -54,8 +55,9 @@ class Trainer:
             for idx, data in enumerate(self.eval_dataloader):
                 self.optimizer.zero_grad()
                 data = data.to(device)
+                # Perform a single forward pass.
                 output =self.network(data.x, data.edge_index, data.edge_features,
-                                  data.slices, data.batch) # Perform a single forward pass.
+                                  data.slices) 
                 loss_eval = self.criterion(output.float(), data.y.long())
 
                 accuracy.append(accuracy_score( data.y.cpu(), output.cpu().argmax(dim=1)))
@@ -78,12 +80,13 @@ class Trainer:
             for idx, data in enumerate(self.eval_dataloader):
                 self.optimizer.zero_grad()
                 data = data.to(device)
+                 # Perform a single forward pass.
                 output =self.network(data.x, data.edge_index, data.edge_features,
-                                  data.slices, data.batch) # Perform a single forward pass.
+                                  data.slices)
                 return output.float(), data.y.long()
 
           
-    def train(self):
+    def train(self, epochs):
         training_loss = []
         validation_loss = []
 
@@ -94,13 +97,19 @@ class Trainer:
         validation_loss.append(loss)
         validation_accuracy.append(acc)
 
-        for i in range(0, self.config['epochs'] + 1):
-            acc, loss = self.train_epoch(i, self.config['epochs'])
+        for i in range(0, epochs):
+            acc, loss = self.train_epoch(i, epochs)
             training_loss.append(loss)
             training_accuracy.append(acc)
 
-            if i % 2 == 0:
+            if i % 20 == 0:
                 acc, loss = self.eval_net()
                 validation_loss.append(loss)
                 validation_accuracy.append(acc)
+            
+            acc, loss = self.eval_net()
+            validation_loss.append(loss)
+            validation_accuracy.append(acc)
+            
         return training_accuracy, training_loss, validation_accuracy, validation_loss
+    

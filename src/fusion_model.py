@@ -24,7 +24,7 @@ class FusionModel(nn.Module):
 
         self.linear_in = nn.Sequential(nn.Linear(nfeat, nhid))
 
-        self.linear_out = nn.Sequential(nn.Linear(128,  nclass))
+        self.linear_out = nn.Sequential(nn.Linear(2 * nhid ,  nclass))
 
         self.edge_pooling = EdgePooling(nhid)
 

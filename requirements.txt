@@ -1,5 +1,6 @@
 einops==0.7.0
 numpy==1.24.3
+opencv_python==4.9.0.80
 scikit_learn==1.2.1
 scipy==1.11.4
 torch==2.0.1

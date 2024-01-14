@@ -104,7 +104,7 @@ class ViT(nn.Module):
 
         self.mlp_head = nn.Sequential(
             nn.LayerNorm(dim),
-            nn.Linear(dim, num_classes)
+            nn.Linear(dim, dim)
         )
 
     def forward(self, img):

@@ -26,15 +26,18 @@ def run():
     image_size = config["image_size"]
     patch_size = config["patch_size"]
     dropout = config["dropout"]
+    graph_data_path = config["graph_data_path"]
     data_path = config["data_path"]
+    label_path = config["label_path"]
     heads = config["heads"]
+    epochs = config["epochs"]
+    mat, mat_gt, train_indx, test_indx = load_data(data_path, label_path)
 
-    mat, mat_gt, train_indx, test_indx = load_data()
-    generate_training_graphs(mat, train_indx)
-    generate_test_graphs(mat_gt, test_indx)
+    #generate_training_graphs(mat, mat_gt, train_indx, graph_data_path)
+    #generate_test_graphs(mat, mat_gt, test_indx, graph_data_path)
 
-    train_dataset = [torch.load(path) for path in os.listdir(data_path) if "train_graph" in path]
-    test_dataset = [torch.load(path) for path in os.listdir(data_path) if "test_graph" in path]
+    train_dataset = [torch.load(os.path.join(graph_data_path, path)) for path in os.listdir(graph_data_path) if "train_graph" in path]
+    test_dataset = [torch.load(os.path.join(graph_data_path, path)) for path in os.listdir(graph_data_path) if "test_graph" in path]
     
     model = FusionModel(nfeat, nhid, nclass, depth, image_size, patch_size, heads, dropout).to(device)
     
@@ -47,7 +50,7 @@ def run():
     val_loader = DataLoader(test_dataset, batch_size=len(test_dataset))
 
     trainer = Trainer(model, train_loader, val_loader, criterion, optimizer, device)
-    train_acc, train_loss, val_acc, val_loss = trainer.train()
+    train_acc, train_loss, val_acc, val_loss = trainer.train(epochs)
     
     return train_acc, train_loss, val_acc, val_loss
 
